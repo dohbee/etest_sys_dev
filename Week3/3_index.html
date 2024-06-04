@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+  <form id="exam-box" class="container">
+    <div id="question-area" class="bg-light p-4 m-2 rounded border"></div>
+    <div id="choice-area"></div>
+    <input class="btn btn-primary m-2" type="submit" value="解答" id="submit-button">
+  </form>
+  <p id="confidence-level" style="display: none;"></p>
+  <table id="result-table" style="display: none;">
+    <thead>
+      <tr>
+        <th class="tg-fymr">問</th>
+        <th class="tg-7btt">あなたの解答</th>
+        <th class="tg-7btt">正誤</th>
+        <th class="tg-1wig">所要時間</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tg-fymr">1</td>
+        <td class="tg-dvpl" id="1_1"></td>
+        <td class="tg-dvpl" id="1_2"></td>
+        <td class="tg-dvpl" id="1_3"></td>
+      </tr>
+      <tr>
+        <td class="tg-fymr">2</td>
+        <td class="tg-dvpl" id="2_1"></td>
+        <td class="tg-dvpl" id="2_2"></td>
+        <td class="tg-dvpl" id="2_3"></td>
+      </tr>
+      <tr>
+        <td class="tg-1wig">3</td>
+        <td class="tg-0lax" id="3_1"></td>
+        <td class="tg-0lax" id="3_2"></td>
+        <td class="tg-0lax" id="3_3"></td>
+      </tr>
+      <tr>
+        <td class="tg-1wig">4</td>
+        <td class="tg-0lax" id="4_1"></td>
+        <td class="tg-0lax" id="4_2"></td>
+        <td class="tg-0lax" id="4_3"></td>
+      </tr>
+      <tr>
+        <td class="tg-1wig">5</td>
+        <td class="tg-0lax" id="5_1"></td>
+        <td class="tg-0lax" id="5_2"></td>
+        <td class="tg-0lax" id="5_3"></td>
+      </tr>
+    </tbody>
+  </table>
+  <script src="1_functions.js"></script>
+  <script src="3_functions.js"></script>
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+  </script>
+  </script>
+</body>
+
+</html>

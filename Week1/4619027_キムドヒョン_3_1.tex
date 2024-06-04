@@ -1,0 +1,556 @@
+\documentclass[12pt]{jarticle}
+\usepackage{TUSIreport}
+\usepackage{otf}
+\usepackage{ascmac}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage[dvipdfmx]{color}
+\lstdefinelanguage{JavaScript}{
+  morekeywords=[1]{break, continue, delete, else, for, function, if, in,
+    new, return, this, typeof, var, void, while, with},
+  % Literals, primitive types, and reference types.
+  morekeywords=[2]{false, null, true, boolean, number, undefined,
+    Array, Boolean, Date, Math, Number, String, Object},
+  % Built-ins.
+  morekeywords=[3]{eval, parseInt, parseFloat, escape, unescape},
+  sensitive,
+  morecomment=[s]{/*}{*/},
+  morecomment=[l]//,
+  morecomment=[s]{/**}{*/}, % JavaDoc style comments
+  morestring=[b]',
+  morestring=[b]"
+}[keywords, comments, strings]
+
+\definecolor{mediumgray}{rgb}{0.3, 0.4, 0.4}
+\definecolor{mediumblue}{rgb}{0.0, 0.0, 0.8}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\definecolor{darkviolet}{rgb}{0.58, 0.0, 0.83}
+\definecolor{royalblue}{rgb}{0.25, 0.41, 0.88}
+\definecolor{crimson}{rgb}{0.86, 0.8, 0.24}
+
+\lstdefinestyle{JSES6Base}{
+  backgroundcolor=\color{white},
+  basicstyle=\ttfamily,
+  breakatwhitespace=false,
+  breaklines=false,
+  captionpos=b,
+  columns=fullflexible,
+  commentstyle=\color{mediumgray}\upshape,
+  emph={},
+  emphstyle=\color{crimson},
+  extendedchars=true,  % requires inputenc
+  fontadjust=true,
+  frame=single,
+  identifierstyle=\color{black},
+  keepspaces=true,
+  keywordstyle=\color{mediumblue},
+  keywordstyle={[2]\color{darkviolet}},
+  keywordstyle={[3]\color{royalblue}},
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\tiny\color{black},
+  rulecolor=\color{black},
+  showlines=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stringstyle=\color{forestgreen},
+  tabsize=2,
+  title=\lstname,
+  upquote=true  % requires textcomp
+}
+
+\lstdefinestyle{HTML}{
+  language=HTML,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!70!black},
+  stringstyle=\color{red},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\lstdefinestyle{JavaScript}{
+  language=JavaScript,
+  style=JSES6Base
+}
+
+
+%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 表紙を出力する場合は，\提出者と\共同実験者をいれる
+% \提出者{科目名}{課題名}{提出年}{提出月}{提出日}{学籍番号}{氏名}
+% \共同実験者{一人目}{二人目}{..}{..}{..}{..}{..}{八人目}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\提出者{情報工学実験3}{教育システム開発-項目反応理論}
+{2023}{5}{18}{4619027}{キムドヒョン}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\共同実験者{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%
+% 表紙を出力する場合はコメントアウトしない
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\表紙出力
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 以下はレポート本体，reportmain.tex に書いてある．
+% \inputを使っているが，直接書いても良い．
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{実験の要旨}
+情報工学実験2では、統計モデルを用いた分析におけるパラメータ推定について、項目反応理論を題材にExcel上で学習・演習を行った。この実験では、e-Testingシステムの実装については取り扱わず、理論的な学習に重点を置いた。しかし、今回は実践的な経験を積むために、項目反応理論を実装し、シミュレーションを行う。
+
+\section{実験の目的}
+今回の実験では、実験2の復習も兼ねて項目反応理論の関数をJavaScriptを用いて、問題の特性や問題数が推定制度に与える影響をシミュレーションにて確認する。
+
+\section{実験の理論}
+項目反応理論（IRT）は新しいテスト理論で、古典的なテスト理論である正答回数だけでなく、受験者の能力値θや問題の品質a・難易度bなどを考慮する。IRTは確率論を基礎としており、問題の特性や能力値の推定にはベイズの定理が使われる。IPA情報処理技術者試験をはじめとする多くの国家試験では、e-Testing化が進んでおり、IRTの導入がますます進むことが予想される。この本では、基本的な「2パラメータロジスティックモデル」について学ぶ。
+\subsection{問題と受験者の特性}
+ある能力値$\theta (\theta \in \mathbb{R})$を持つ受験者の存在を仮定する。このとき、受験者が問題$i$に正答する確率$P_i(1 \mid \theta)$は、IRTによると式(1)のようにモデル化されている。
+\begin{equation}P_i(1\mid \theta)=P(1 \mid \theta,a_i,b_i)=\frac{1}{1+\exp(-Da_i(\theta-b_i))}\end{equation}
+ここで、$P_i(1 \mid \theta)$ は、受験者の能力が $\theta$ であった場合に問題に対して正答（$x=1$）する条件付き確率を表す。この関数はIRTでは項目反応関数と呼ばれる。また、図1のような曲線を項目特性曲線 (ICC: Item Characteristic Curve) と呼ぶ。
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=12cm]{1.jpg}
+	\caption{項目特性曲線（ICC）}
+\end{figure}
+
+$a (a > 0)$ は識別力パラメータ、$b (b \in \mathbb{R})$ は困難度パラメータと呼ばれる。$a_i$ が小さい問題 $i$ の回答 $x$ においては、能力 $\theta$ や難易度 $b_i$ によらず一定の正答率しか得ることができない。$a$ は非線形SVMでいう $\gamma$ に相当し、小さければ項目の機能は低下するが、大きすぎると項目数が少ない場合に汎化誤差が高まりやすくなる。そのため、$a$ は $0.3 < a < 1.7$ 程度であることが望ましいとされている。$a$ と $b$ は、$\theta$ が明らかな場合にのみロジスティック回帰や線形SVMを用いて求めることができる。$\theta$ が不明な場合はEMアルゴリズムを用いた周辺最尤推定を使用する。$D$ は項目反応関数 $P_i(1 \mid \theta)$ を正規分布の累積分布関数に近似するための係数であり、$D = 1.7$ のとき非常によく近似することが知られている。
+
+また、式(1)は正答する確率を表している。ここで、ある問題に正答した場合を1、誤答した場合を0とする変数 $x$ があるとする。すると、反応確率 $P_i(1 \mid \theta)$ は式(2)のように表される。
+\begin{equation}P_i(1\mid \theta)=P_i(1\mid \theta)^{x}(1-P(1 \mid \theta))^{1-x}\end{equation}
+後述するベイズの定理では、これを尤度関数と呼称する。\\
+\subsection{能力値の推定}
+問題系列について正誤反応$\mathbf{X}=(x_1,x_2,...,x_N)$が与えられたとする。この時の能力値$\theta$は次式(3)によって推定することができる。
+\begin{equation}
+\hat{\theta} = \mathop{\rm arg~max}\limits_\theta P(\theta \mid {\bf X})\\
+\end{equation}
+$P(\theta \mid {\bf X})$は、ある能力値$\theta$の受験者がそれぞれの問題$i$に$\mathbf{X}=(x_1,x_2,...,x_N)$のように反応したという条件の下で、その受験者の能力値$\theta$である確率を示す。maxは$P(\theta \mid {\bf X})$の最頻値であり、argmaxは尤も確率Pが高くなる引数$\theta$の集合を表す。
+
+ただし、IRTにおいて$P(\theta \mid {\bf X})$は明らかでない。そこで、式(4)に示すベイズの定理を用いる。
+\begin{equation}
+P(\theta \mid {\bf X}) = \frac{P({\bf X} \mid \theta) P(\theta)}{P(\bf{X)}}
+\end{equation}
+ベイズ統計学においては、$\theta$を仮定（原因）、$\bf{X}$を結果（データ）と解釈する。また、$P(\theta)$を事前確率、$P({\bf X} \mid \theta)$を尤度関数、$P({\bf X})$を周辺尤度、$P(\theta \mid {\bf X})$を事後確率と呼称することがある（図2）。
+
+ここで、ある項目が他の項目の解答やヒントにならず、かつ問題群が一つ科目（例えば数学のみ）で構成されるとした場合、尤度関数$P({\bf X} \mid \theta)$は以下のように求められる。
+
+\begin{equation}
+P({\bf X} \mid \theta) = P_{1}(x_1 \mid \theta)P_{2}(x_2 \mid \theta)\cdots P_{N}(x_N \mid \theta)= \prod_{i=1}^N P(x_{i} \mid \theta) = \prod_{i=1}^N P(x_{i} \mid \theta, a_i, b_i)
+\end{equation}
+このような「潜在特性値$\theta$を固定したとき、異なる項目への反応$x$が統計的に互いに独立になる性質」を局所独立性と呼ぶ。この条件を仮定することで、項目間の正誤反応を同時確率とできる。仮定の成立を積極的に評価するのは難しいが、主成分分析を用い、項目に対する反応の無相関性と、受験者の反応の一次元性を検証するケースが多い。
+
+条件付き確率$P(\theta \mid {\bf X})$を尤度関数$P({\bf X} \mid \theta)$のみで表現した最大引数$\theta$を推定値とする方法論を最尤推定、周辺尤度$P({\bf X})$を考慮した最尤推定を最大事後確率（MAP推定）、事前分布$P(\theta)$を考慮した最尤推定をベイズの推定呼ぶ。ベイズの推定に準拠すれば以下の式(6)で能力値が推定できる。
+\begin{equation}
+\hat{\theta}=\mathop{\rm arg~max}\limits_\theta \frac{P({\bf X} \mid \theta) P(\theta)}{P(\bf{X)}}=\mathop{\rm arg~max}\limits_\theta \Biggl( \frac{P(\theta)}{P({\bf X})}\prod_{i=1}^N P(x_{i} \mid \theta, a_i, b_i) \Biggr)
+\end{equation}
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=12cm]{2.jpg}
+ \caption{ベイズの定理における分布の変化}
+\end{figure}
+
+\subsection{項目情報量}
+項目情報量とは、項目への反応から能力値を推定する差異のフィッシャー情報量である。以下のような式となる。
+\begin{equation}
+I_i(\theta)=I(\theta,a_i,b_i)=D^2a_i^2P(1 \mid \theta,a_i,b_i)(1-P(1 \mid \theta,a_i,b_i)
+\end{equation}
+つまい、問題の識別力と正答確率・誤答確率の積である。さらに、複数の確率変数$P(1 \mid \theta, a, b)$がすべて独立という条件の下で、フィッシャー情報量は加法性が成立する。
+\begin{equation}
+I(\theta)=\sum_i I_i(\theta)
+\end{equation}
+フィッシャー情報量は一般に最尤推定値$\hat{\theta}$の標準誤差$se(\hat{\theta})$と以下の関係を持つ。
+\begin{equation}
+se(\hat{\theta})=I(\hat{\theta})^{-\frac{1}{2}}
+\end{equation}
+そのため情報量を算出することで，推定能力値のに対する誤差を見積もることが可能である。
+
+情報量は式(8)のとおり，問題数が多ければ多いほど増加していくと考えられる、ただし、受験者に問題を1000問解かせるというのは人間工学的な問題が発生するため，実運用上は項目数の最小化と情報量の最大化という2つの最適化問題を解く。研究分野で言うと情報量は「テスト自動構成」と「適応テスト」において活用され、出題項目数の大幅な削滅に寄与する。
+
+情報量はアイテムバンクからテストを構成する際の基準に用いられている。図3は実験2で用いた問題集合のテスト情報量であるが、$\theta=1$付近の能力値を推定するのに適したテストであるといえる。一般的にはナップザック問題を解くことで、試験目的に最適な項目の組み合わせを求める。例えば，テスト（項目集合）の集合を節点い、情報量が異なるか問題重複が多いテスト間に存在する枝E、これらで定まるグラフを$G = (V,E)$ とする。この時、グラフGの独立集合は「問題が異なるにも関わらず情報量が等質」というテスト集合となる。$G$の最大独立集合を求める問題を最大クリーク問題と呼び、これによって複数の等質テストを自動で構成できる。
+
+テスト構成はテスト前に行われるが、適応テストはテスト中に適用される。適応テストは推定能力値$\hat{\theta}$に対して次式のように推定語さを最小化する項目を出題する。
+\begin{equation}
+i_{\rm{next}}\leftarrow \mathop{\rm arg~max}\limits_i I(\hat{\theta},a_i,b_i)
+\end{equation}
+
+情報量は尤度関数の微分が含まれることから、式(10)は勾配法の一種である。図4より、推定能力値$\hat{\theta}$が$N(b,a^{-1})$の範囲に収まっていることがわかる。適応テストは、出題項目数を1/3まで削減することが可能であり、最近では採用試験などでも用いられている。
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[width=8cm]{3.jpg}
+	\caption{テスト情報量}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[width=8cm]{4.jpg}
+	\caption{適応テスト}
+\end{minipage}
+\end{figure}
+
+\section{課題}
+\begin{itembox}[2]{\null}
+	\begin{itemize}
+	\item \textbf{演習1-1}- 正規分布の値を出力する関数practice()を作成し、min = -3, max = 3, step = 1における値を出力しなさい。また、値をExcelなどコピーし、グラフ化した際に正規分布が表示されるか確認しなさい。
+	\item \textbf{演習1-2}- responseProbability(0, 1, 1, 2) $\simeq$ 0.846 \\  icc(1, 1, 0, -3, 3, 1) $\simeq$ (0.006, 0.032, 0.154, 0.500, 0.846, 0.968, 0.994)\\ となることを確認しなさい。
+	\item \textbf{演習1-3}- bayes([1], [{ a:1, b:0 }], -2, 2, 1) $\simeq$ (0.004, 0.075, 0.403, 0.413, 0.105)\\ estimation([1], [{ a:1, b:0 }], -2, 2, 1) = 1 となることを確認しなさい。
+	\item \textbf{演習1-4}- information(0, [{ a:1, b:0 }]) = 0.7225となることを確認しなさい。
+	\item \textbf{課題1-1}- 仮想実験を実施し、問題数Q\_NUMと受験者数E\_NUMが推定精度に与える影響を確認しなさい。
+	\item \textbf{課題1-2}- 受験者の能力値を一様分布からコーシー分布に変更し、誤差について考察しなさい。
+	%\item 各演習のソースコードは付録に添付する。
+	\end{itemize}
+\end{itembox}
+\subsection{演習1-1}
+\begin{table}[H]
+\centering
+\caption{min = -3, max = 3, step = 1を入力した場合}
+\label{tab:my-table}
+\begin{tabular}{l|rrrrrrr}
+\hline \hline
+\textbf{Index} &
+  \multicolumn{1}{c}{\textbf{0}} &
+  \multicolumn{1}{c}{\textbf{1}} &
+  \multicolumn{1}{c}{\textbf{2}} &
+  \multicolumn{1}{c}{\textbf{3}} &
+  \multicolumn{1}{c}{\textbf{4}} &
+  \multicolumn{1}{c}{\textbf{5}} &
+  \multicolumn{1}{c}{\textbf{6}} \\ \hline
+\textbf{範囲} &
+  -3 &
+  -2 &
+  -1 &
+  0 &
+  1 &
+  2 &
+  3 \\
+\textbf{出力} &
+  0.0044 &
+  0.054 &
+  0.242 &
+  0.3989 &
+  0.242 &
+  0.054 &
+  0.0044 \\ \hline \hline
+\end{tabular}
+\end{table}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{practice1.png}
+ \caption{表1の結果をグラフ}
+\end{figure}
+
+\subsection{演習1-2}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{practice2.png}
+ \caption{演習1-2の実装結果}
+\end{figure}
+\subsection{演習1-3}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{practice3.png}
+ \caption{演習1-3の実装結果}
+\end{figure}
+
+\subsection{演習1-4}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{practice4.png}
+ \caption{演習1-4の実装結果}
+\end{figure}
+
+\subsection{課題1-1}
+\begin{table}[H]
+\centering
+\caption{受験者数だけを変化したとき}
+\begin{tabular}{ll|lllll|l}
+\hline
+\multicolumn{1}{c}{Q\_NUM} & \multicolumn{1}{c|}{E\_NUM} & \multicolumn{1}{c}{1回目} & \multicolumn{1}{c}{2回目} & \multicolumn{1}{c}{3回目} & \multicolumn{1}{c}{4回目} & \multicolumn{1}{c|}{5回目} & \multicolumn{1}{c|}{平均} \\ \hline
+30                         & 10                          & 0.36566                 & 0.439892                & 0.355727                & 0.326317                & 0.310163                 & 0.359552                \\
+30                         & 50                          & 0.33126                 & 0.292943                & 0.343432                & 0.264051                & 0.336234                 & 0.313584                \\
+30                         & 100                         & 0.331752                & 0.301499                & 0.299271                & 0.400985                & 0.252495                 & 0.317201                \\
+30                         & 150                         & 0.325455                & 0.298142                & 0.375762                & 0.304007                & 0.353558                 & 0.331385                \\
+30                         & 200                         & 0.275015                & 0.267367                & 0.301082                & 0.369844                & 0.355432                 & 0.313748                \\ \hline
+\end{tabular}
+\end{table}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{kadai1-2.png}
+ \caption{問題数は固定し受験者数を変化した場合の推定精度}
+\end{figure}
+表2の結果をみると、E\_NUMが増加することにつれ、推定精度が変化することが確認できる。一般的にE\_NUMが増えれば推定精度も向上される傾向があった。その理由として考えられるのは、標本の大きさが増加したことと、受験者が増加して応答されたデータの多様性が増えたことなどがある。
+\begin{table}[H]
+\centering
+\caption{問題数だけを変化したとき}
+\begin{tabular}{ll|lllll|l}
+\hline
+\multicolumn{1}{c}{Q\_NUM} & \multicolumn{1}{c|}{E\_NUM} & \multicolumn{1}{c}{1回目} & \multicolumn{1}{c}{2回目} & \multicolumn{1}{c}{3回目} & \multicolumn{1}{c}{4回目} & \multicolumn{1}{c|}{5回目} & \multicolumn{1}{c|}{平均} \\ \hline
+30                         & 100                         & 0.313782                & 0.265795                & 0.323251                & 0.314089                & 0.299684                 & 0.303320                \\
+50                         & 100                         & 0.252395                & 0.244538                & 0.251966                & 0.268183                & 0.209797                 & 0.245376                \\
+70                         & 100                         & 0.197272                & 0.182054                & 0.201055                & 0.194511                & 0.187262                 & 0.192431                \\
+100                        & 100                         & 0.161129                & 0.168807                & 0.199783                & 0.168558                & 0.201353                 & 0.179926                \\
+150                        & 100                         & 0.146181                & 0.141304                & 0.122881                & 0.137281                & 0.126178                 & 0.134765                \\ \hline
+\end{tabular}
+\end{table}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{kadai1.png}
+ \caption{受験者は固定し問題数を変化した場合の推定精度}
+\end{figure}
+表3はE\_NUMを固定し、Q\_NUMだけを変化したとき得られた結果である。問題数が多くなることで推定精度も高くなったことがわかる。その理由として、問題数が増加されることで受験者の能力と特性を多様に測定でき、より正確に受験者を把握できるようになりこれが推定精度の向上につながると思われる。
+
+\subsection{課題1-2}
+\begin{table}[H]
+\centering
+\caption{コーシー分布に変えたときの結果}
+\begin{tabular}{l|ll|lllll|l}
+\hline
+分布                                                       & Q\_NUM & \multicolumn{1}{c|}{E\_NUM} & \multicolumn{1}{c}{1回目} & \multicolumn{1}{c}{2回目} & \multicolumn{1}{c}{3回目} & \multicolumn{1}{c}{4回目} & \multicolumn{1}{c|}{5回目} & \multicolumn{1}{c}{平均} \\ \hline
+課題1-1                                                    & 50     & 100                         & 0.33126                 & 0.292943                & 0.343432                & 0.264051                & 0.336234                 & 0.313584               \\
+\begin{tabular}[c]{@{}l@{}}コーシー分布\\ (n=0.1)\end{tabular} & 50     & 100                         & 0.351918                & 0.406419                & 0.741365                & 0.288394                & 0.183044                 & 0.394228               \\
+\begin{tabular}[c]{@{}l@{}}コーシー分布\\ (n=1)\end{tabular}   & 50     & 100                         & 0.796162                & 5.644426                & 1.53772                 & 1.735447                & 0.663512                 & 2.075453               \\ \hline
+\end{tabular}
+\end{table}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width=10cm]{kadai2.png}
+ \caption{各分布別推定精度}
+\end{figure}
+表4は受験者の能力値を一様分布からコーシー分布に変えたとき得られた平均誤差である。また、図9は各平均誤差の逆数をとって推定精度を計算しグラフ化したものである。\\
+コーシー分布に変えることで精度が低くなったことから一様分布を利用した方が精度が高いと思われる。しかし、コーシー分布は裾の重い分布であり、極端な値がより頻繁に生成されるため、表4のようにシミュレーションごとのばらつきが大きいことがわかる。またそういう特性のため、シミュレーション回数を大きくしてその平均誤差を求めれば一様分布より正確な値が得られると考えられる。
+したがって、コーシー分布を用いると推定の安定性は低下するが、シミュレーション回数を大きくすれば推定の精度は向上する可能性がある。
+\section{まとめ}
+今回の実験では、テスト理論に関連する知識を復習し、JavaScriptを使用して能力値の推定を行うシミュレーションを実装した。さらに、問題の特性や問題数、受験者数などのパラメータが推定誤差にどのような影響を与えるかを確認した。
+
+シミュレーションでは、与えられた問題の特性や受験者の応答パターンを基に、能力値を推定した。さまざまなパラメータ設定（問題数、受験者数など）において、推定誤差を評価した。これにより、問題や受験者の数が推定の精度にどのような影響を与えるかを把握することができた。
+
+\clearpage
+\appendix
+\section{付録}
+\begin{lstlisting}[style=HTML, caption={1\_index.html}]
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <div id="result"></div>
+  <script src="1_functions.js"></script>
+</body>
+
+</html>
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={演習1-1}]
+const result = document.getElementById('result');
+//演習1-1
+const norm = (theta) => {
+  return Math.exp(-theta * theta / 2) / Math.sqrt(2 * Math.PI);
+}
+const normDist = (min, max, step) => {
+  const dist = [];
+  for (let theta = min; theta <= max; theta += step)
+    dist.push(norm(theta) * step);
+  return dist;
+}
+
+const practice1 = () => {
+  normDist(-3, 3, 1).forEach(value => {
+    result.innerHTML += value.toFixed(4) + ', ';
+  })
+}
+practice1();
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={演習1-2}]
+const result = document.getElementById('result');
+//演習1-2
+const correctProbability = (theta, a, b) => {
+  return 1 / (1 + Math.exp(-1.7 * a * (theta - b)));
+}
+const responseProbability = (x, theta, a, b) => {
+  const p = correctProbability(theta, a, b);
+  return Math.pow(p, x) * Math.pow(1 - p, 1 - x);
+
+}
+const icc = (x, a, b, min, max, step) => {
+  const iccDist = [];
+  for (let theta = min; theta <= max; theta += step) {
+    iccDist.push(responseProbability(x, theta, a, b));
+  }
+  return iccDist;
+}
+const practice2 = () => {
+  result.innerHTML = responseProbability(0, 1, 1, 2).toFixed(3) + '<br>';
+  icc(1, 1, 0, -3, 3, 1).forEach(value => {
+    result.innerHTML += value.toFixed(3) + ', ';
+  })
+}
+practice2();
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={演習1-3}]
+const result = document.getElementById('result');
+//演習1-3
+const itemBank = [
+  { a: 1, b: 0 },
+  { a: 0.5, b: 0.3 }
+];
+
+const bayes = (x, itemBank, min, max, step) => {
+  const dist = normDist(min, max, step); //P(θ)
+  x.forEach((eachX, index) => {
+    const item = itemBank[index]; // $itemBankから一つの問題セットを取得
+    const likelihoodDist = icc(eachX, item.a, item.b, min, max, step);
+    dist.forEach((_, theta, arr) =>
+      arr[theta] *= likelihoodDist[theta]); //P(θ)ΠP(X|θ)
+  });
+  //周辺尤度の計算
+  const marginalLikelihood = dist.reduce((a, b) => a + b); //P(θ)
+  dist.forEach((_, theta, arr) =>
+    arr[theta] /= marginalLikelihood);//P(θ)ΠP(X|θ)
+  return dist;
+}
+
+const argmax = arr => arr.indexOf(arr.reduce((a, b) => Math.max(a, b)));
+
+const estimation = (x, itemBank, min, max, step) => {
+  const probability = bayes(x, itemBank, min, max, step);
+  return min + argmax(probability) * step;
+}
+
+const practice3A = () => {
+  bayes([1], [{ a: 1, b: 0 }], -2, 2, 1).forEach(value => {
+    result.innerHTML += value.toFixed(3) + ', ';
+  })
+}
+const practice3B = () => {
+  result.innerHTML = estimation([1], [{ a: 1, b: 0 }], -2, 2, 1);
+}
+practice3A();
+practice3B();
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={演習1-4}]
+const result = document.getElementById('result');
+//演習1-4
+const information = (theta, itemBank) => {
+  let info = 0;
+  itemBank.forEach(item => {
+    const p = correctProbability(theta, item.a, item.b);
+    info += 1.7 * 1.7 * item.a * item.a * p * (1 - p);
+  });
+  return info;
+}
+
+const standardError = (theta, itemBank) => {
+  return 1.0 / Math.sqrt(information(theta, itemBank));
+}
+
+const practice4 = () => {
+  result.innerHTML = information(0, [{ a: 1, b: 0 }]).toFixed(4);
+}
+practice4();
+
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={課題1-1}]
+const result = document.getElementById('result');
+/**
+ * シミュレーション実験
+ * @param {number} Q_NUM 問題数
+ * @param {number} E_NUM 受験者数
+ * @return {number} 平均誤差
+ */
+const simulation = (Q_NUM, E_NUM) => {
+  //アイテムバンク生成
+  const itemBank = [];
+  for (let i = 0; i < Q_NUM; i++) {
+    itemBank.push({
+      a: Math.random() * 2, //[0,2)
+      b: (Math.random() - 0.5) * 6 //[-3,3)
+    });
+  }
+
+  //受験者生成
+  const examinee = [];
+  for (let e = 0; e < E_NUM; e++) {
+    examinee.push((Math.random() - 0.5) * 6); //[-3,3)
+  }
+
+  //受験者ごとの誤差
+  const error = [];
+  for (const theta of examinee) {
+    const x = []; //正誤
+    for (const item of itemBank) {
+      x.push(correctProbability(theta, item.a, item.b) > Math.random() ? 1 : 0);
+    }
+    error.push(Math.abs(theta - estimation(x, itemBank, -3, 3, 0.1)));
+  }
+
+  //平均誤差
+  return error.reduce((a, b) => a + b) / E_NUM;
+}
+
+result.innerHTML = '平均誤差: ' + simulation(50, 100);
+\end{lstlisting}
+\begin{lstlisting}[style=JavaScript, caption={課題1-2}]
+const result = document.getElementById('result');
+
+const cauchy = (x0, eta) => {
+  return x0 + eta * Math.tan(Math.PI * (Math.random() - 0.5));
+}
+
+/**
+ * シミュレーション実験
+ * @param {number} Q_NUM 問題数
+ * @param {number} E_NUM 受験者数
+ * @return {number} 平均誤差
+ */
+const simulation = (Q_NUM, E_NUM, eta) => {
+  //アイテムバンク生成
+  const itemBank = [];
+  for (let i = 0; i < Q_NUM; i++) {
+    itemBank.push({
+      a: Math.random() * 2, //[0,2)
+      b: (Math.random() - 0.5) * 6 //[-3,3)
+    });
+  }
+
+  //受験者生成(コーシー分布)
+  const examinee = [];
+  for (let e = 0; e < E_NUM; e++) {
+    examinee2.push(cauchy(0, eta));
+  }
+  //受験者ごとの誤差
+  const error = [];
+  for (const theta of examinee) {
+    const x = []; //正誤
+    for (const item of itemBank) {
+      x.push(correctProbability(theta, item.a, item.b) > Math.random() ? 1 : 0);
+    }
+    error.push(Math.abs(theta - estimation(x, itemBank, -3, 3, 0.1)));
+  }
+
+  //平均誤差
+  return error.reduce((a, b) => a + b) / E_NUM;
+}
+
+result.innerHTML = '平均誤差: ' + simulation(50, 30);
+\end{lstlisting}
+
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

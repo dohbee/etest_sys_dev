@@ -1,0 +1,97 @@
+[
+  {
+    "question": "あなたの英語の自信度を選択してください．",
+    "choices": [
+      "全くない",
+      "あまり無い",
+      "普通",
+      "ややある",
+      "非常にある"
+    ]
+  },
+  {
+    "question": "あなたの国語の自信度を選択してください．",
+    "choices": [
+      "全くない",
+      "あまり無い",
+      "普通",
+      "ややある",
+      "非常にある"
+    ]
+  },
+  {
+    "question": "Let's go ahead and do it. Nothing _____ by just wating.",
+    "choices": [
+      "A. will be gained",
+      "B. will gain",
+      "C. has gained",
+      "D. gains",
+      "分からない"
+    ],
+    "correct": 0,
+    "a": 0.275,
+    "b": -0.507
+  },
+  {
+    "question": "This work calls for great _____. Do you think you will fit for it?",
+    "choices": [
+      "A. patience",
+      "B. skill",
+      "C. advice",
+      "D. knowledge",
+      "分からない"
+    ],
+    "correct": 0,
+    "a": 0.364,
+    "b": 1.269
+  },
+  {
+    "question": "Alice trusts you; only you can _____ her to give up the foolish idea.",
+    "choices": [
+      "A. suggest",
+      "B. attract",
+      "C. tempt",
+      "D. persuade",
+      "分からない"
+    ],
+    "correct": 3,
+    "a": 0.761,
+    "b": 0.361
+  },
+  {
+    "question": "We _____ playing baseball for about half an hour when it started to rain very heavily",
+    "choices": [
+      "A. had been",
+      "B. have been",
+      "C. might be",
+      "D. would be",
+      "分からない"
+    ],
+    "correct": 0,
+    "a": 0.524,
+    "b": 0.086
+  },
+  {
+    "question": "A: We're having a party on Saturday night. Can you come?<br>&nbsp&nbspB:&nbsp_____<br>&nbsp&nbspA: Oh well, maybe next time!",
+    "choices": [
+      "A. I think it's a very good idea.",
+      "B. I'm sorry, I'm busy this weekend.",
+      "C. No. I can't. I never go to parties.",
+      "D. Yes, of course I can come.",
+      "分からない"
+    ],
+    "correct": 1,
+    "a": 1.466,
+    "b": -0.622
+  },
+  {
+    "question": "テスト全体の自信度を選択してください。",
+    "choices": [
+      "全くない",
+      "あまり無い",
+      "普通",
+      "ややある",
+      "非常にある"
+    ]
+  }
+]
